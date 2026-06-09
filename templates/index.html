@@ -939,14 +939,14 @@
     <aside class="sidebar">
         <div class="sidebar-header">
             <h1><span class="icon">🎓</span> 作业批改助手</h1>
-            <p>AI 驱动的智能作业批改系�? · 支持10+学科</p>
-            <p style="font-size:11px;margin-top:4px;opacity:0.5;">v1.1 · 公网�?</p>
+            <p>AI 驱动的智能作业批改系统 · 支持10+学科</p>
+            <p style="font-size:11px;margin-top:4px;opacity:0.5;">v1.1 · 公网版</p>
         </div>
 
         <div class="sidebar-content">
             <!-- API Provider -->
             <div class="config-section">
-                <label>🤖 API 服务�?</label>
+                <label>🤖 API 服务商</label>
                 <select id="apiProvider">
                     <!-- Populated by JS -->
                 </select>
@@ -990,7 +990,7 @@
 
             <!-- Subject -->
             <div class="config-section" id="subjectSection" style="display:none;">
-                <label>📌 知识�? / 题型</label>
+                <label>📌 知识点 / 题型</label>
                 <select id="subjectSelect">
                     <!-- Populated by JS -->
                 </select>
@@ -1011,7 +1011,7 @@
             <!-- Extra Instructions -->
             <details class="extra-instructions">
                 <summary>💡 额外批改要求（可选）</summary>
-                <textarea id="extraInstructions" placeholder="例如：重点检查语法错误、关注解题步骤是否完�?..."></textarea>
+                <textarea id="extraInstructions" placeholder="例如：重点检查语法错误、关注解题步骤是否完整..."></textarea>
             </details>
 
             <!-- History -->
@@ -1027,7 +1027,7 @@
         </div>
 
         <div class="sidebar-footer">
-            <a href="/manual" target="_blank" style="color:rgba(255,255,255,0.6);text-decoration:none;font-size:11px;">📖 产品说明�?</a><br>
+            <a href="/manual" target="_blank" style="color:rgba(255,255,255,0.6);text-decoration:none;font-size:11px;">📖 产品说明书</a><br>
             <span style="font-size:10px;">Powered by DeepSeek / SiliconFlow</span>
         </div>
     </aside>
@@ -1041,7 +1041,7 @@
             <div class="top-bar-actions">
                 <button class="btn btn-ghost" onclick="resetAll()">🔄 重置</button>
                 <button class="btn btn-primary" id="gradeBtn" onclick="startGrading()">
-                    <span>�? 开始批�?</span>
+                    <span>✨ 开始批改</span>
                 </button>
             </div>
         </div>
@@ -1066,24 +1066,24 @@
                 <div class="file-info" id="fileInfo">
                     <span>📄</span>
                     <span id="fileName"></span>
-                    <span class="remove-file" onclick="removeFile()">�?</span>
+                    <span class="remove-file" onclick="removeFile()">✕</span>
                 </div>
 
                 <!-- Text Input -->
                 <div class="panel-header">
                     <h3>
                         📝 作业内容
-                        <span class="char-count" id="charCount">0 �?</span>
+                        <span class="char-count" id="charCount">0 字</span>
                     </h3>
                 </div>
 
                 <textarea class="homework-input" id="homeworkText"
-                    placeholder="在此粘贴或输入学生的作业内容...&#10;&#10;例如�?&#10;题目：请解释光合作用的过程�?&#10;学生答案：光合作用是植物利用阳光将二氧化碳和水转化为有机物的过程...&#10;&#10;或者直接粘贴整篇作文、数学解题过程等�?"
+                    placeholder="在此粘贴或输入学生的作业内容...&#10;&#10;例如：&#10;题目：请解释光合作用的过程。&#10;学生答案：光合作用是植物利用阳光将二氧化碳和水转化为有机物的过程...&#10;&#10;或者直接粘贴整篇作文、数学解题过程等。"
                     oninput="updateCharCount()"></textarea>
 
                 <div class="input-actions">
                     <span style="font-size:12px;color:var(--text-muted);">
-                        💡 提示：选择左侧课程和模型后，点击右上角「开始批改�?
+                        💡 提示：选择左侧课程和模型后，点击右上角「开始批改」
                     </span>
                 </div>
 
@@ -1119,7 +1119,7 @@
                     <div class="empty-state">
                         <div class="icon">📋</div>
                         <h3>等待批改</h3>
-                        <p>输入作业内容并选择课程和模型后，点击「开始批改」即可获�? AI 批改结果</p>
+                        <p>输入作业内容并选择课程和模型后，点击「开始批改」即可获得 AI 批改结果</p>
                     </div>
                 </div>
 
@@ -1137,8 +1137,8 @@
 <div class="loading-overlay" id="loadingOverlay">
     <div class="loading-card">
         <div class="loading-spinner"></div>
-        <h3>🤖 AI 正在批改�?...</h3>
-        <p id="loadingText">正在分析作业内容，请稍�?</p>
+        <h3>🤖 AI 正在批改中...</h3>
+        <p id="loadingText">正在分析作业内容，请稍候</p>
     </div>
 </div>
 
@@ -1210,19 +1210,19 @@ function getFallbackConfig() {
             },
             {
                 id: "openai_compatible",
-                name: "自定�? OpenAI 兼容 API",
+                name: "自定义 OpenAI 兼容 API",
                 base_url: "",
                 models: []
             }
         ],
         courses: [
-            {id: "chinese", name: "语文", icon: "📝", subjects: ["阅读理解", "作文", "古诗词鉴�?"]},
+            {id: "chinese", name: "语文", icon: "📝", subjects: ["阅读理解", "作文", "古诗词鉴赏"]},
             {id: "math", name: "数学", icon: "🔢", subjects: ["代数", "几何", "概率统计"]},
             {id: "english", name: "英语", icon: "🔤", subjects: ["阅读理解", "写作", "完形填空"]},
-            {id: "physics", name: "物理", icon: "�?", subjects: ["力学", "电磁�?"]},
+            {id: "physics", name: "物理", icon: "⚡", subjects: ["力学", "电磁学"]},
             {id: "chemistry", name: "化学", icon: "🧪", subjects: ["有机化学", "无机化学"]},
-            {id: "biology", name: "生物", icon: "🧬", subjects: ["细胞生物�?", "遗传�?"]},
-            {id: "custom", name: "自定义课�?", icon: "📚", subjects: []},
+            {id: "biology", name: "生物", icon: "🧬", subjects: ["细胞生物学", "遗传学"]},
+            {id: "custom", name: "自定义课程", icon: "📚", subjects: []},
         ]
     };
 }
@@ -1237,7 +1237,7 @@ function initUI() {
         providerSelect.appendChild(opt);
     });
 
-    // 默认选中 Kimi（moonshot�?
+    // 默认选中 Kimi（moonshot）
     if (providerSelect.querySelector('option[value="moonshot"]')) {
         providerSelect.value = 'moonshot';
     }
@@ -1275,7 +1275,7 @@ function onProviderChange() {
         customModelGroup.classList.add('show');
         const opt = document.createElement('option');
         opt.value = '_custom';
-        opt.textContent = '自定义模�?';
+        opt.textContent = '自定义模型';
         modelSelect.appendChild(opt);
     } else {
         customUrlSection.style.display = 'none';
@@ -1291,7 +1291,7 @@ function onProviderChange() {
         }
     }
 
-    // 自动填入内置 API Key（如果该服务商有 default_api_key�?
+    // 自动填入内置 API Key（如果该服务商有 default_api_key）
     if (provider && provider.default_api_key) {
         apiKeyInput.value = provider.default_api_key;
         localStorage.setItem('api_key', provider.default_api_key);
@@ -1336,10 +1336,10 @@ function selectCourse(courseId) {
         subjectSelect.onchange = () => { state.selectedSubject = subjectSelect.value; };
     } else if (courseId === 'custom') {
         subjectSection.style.display = 'block';
-        subjectSelect.innerHTML = '<option value="自定�?">自定义知识点</option>';
+        subjectSelect.innerHTML = '<option value="自定义">自定义知识点</option>';
         // Allow user to type custom subject
-        subjectSelect.insertAdjacentHTML('afterend', '<input type="text" id="customSubject" placeholder="输入自定义课程名�?" style="width:100%;padding:10px 14px;border:1px solid rgba(255,255,255,0.15);border-radius:8px;background:rgba(255,255,255,0.08);color:white;font-size:14px;margin-top:8px;outline:none;">');
-        state.selectedSubject = '自定�?';
+        subjectSelect.insertAdjacentHTML('afterend', '<input type="text" id="customSubject" placeholder="输入自定义课程名称" style="width:100%;padding:10px 14px;border:1px solid rgba(255,255,255,0.15);border-radius:8px;background:rgba(255,255,255,0.08);color:white;font-size:14px;margin-top:8px;outline:none;">');
+        state.selectedSubject = '自定义';
     } else {
         subjectSection.style.display = 'none';
         state.selectedSubject = '';
@@ -1422,7 +1422,7 @@ async function handleFile(file) {
         if (data.success) {
             document.getElementById('homeworkText').value = data.text;
             document.getElementById('fileInfo').classList.add('show');
-            document.getElementById('fileName').textContent = `${data.filename} (${data.char_count} �?)`;
+            document.getElementById('fileName').textContent = `${data.filename} (${data.char_count} 字)`;
             state.uploadedFile = data.filename;
             updateCharCount();
 
@@ -1488,7 +1488,7 @@ async function startGrading() {
         return;
     }
     if (!apiKey) {
-        showToast('请输�? API Key', 'error');
+        showToast('请输入 API Key', 'error');
         return;
     }
     if (!state.selectedCourse) {
@@ -1513,7 +1513,7 @@ async function startGrading() {
     let subject = state.selectedSubject || '';
     if (state.selectedCourse === 'custom') {
         const customSubject = document.getElementById('customSubject');
-        if (customSubject) subject = customSubject.value.trim() || '自定�?';
+        if (customSubject) subject = customSubject.value.trim() || '自定义';
     }
 
     // Get custom URL
@@ -1522,7 +1522,7 @@ async function startGrading() {
     // Show loading
     document.getElementById('loadingOverlay').classList.add('show');
     document.getElementById('gradeBtn').disabled = true;
-    document.getElementById('loadingText').textContent = 'AI 正在批改中，请稍�?...';
+    document.getElementById('loadingText').textContent = 'AI 正在批改中，请稍候...';
 
     try {
         const res = await fetch('/api/grade', {
@@ -1546,7 +1546,7 @@ async function startGrading() {
         if (data.success) {
             renderResult(data.result, data.metadata);
             addToHistory(data.metadata, homeworkText.substring(0, 50));
-            showToast('批改完成�?', 'success');
+            showToast('批改完成！', 'success');
         } else {
             showToast(data.error || '批改失败', 'error');
         }
@@ -1574,7 +1574,7 @@ function renderResult(text, metadata) {
                 <span>📖 ${metadata.course} · ${metadata.subject || ''}</span>
                 <span>🧠 ${metadata.model || ''}</span>
                 <span>🕐 ${metadata.timestamp || ''}</span>
-                <span>📝 ${metadata.word_count || 0} �?</span>
+                <span>📝 ${metadata.word_count || 0} 字</span>
             </div>
         `;
     }
@@ -1648,7 +1648,7 @@ function markdownToHtml(md) {
 function copyResult() {
     const text = document.getElementById('resultContent').innerText;
     navigator.clipboard.writeText(text).then(() => {
-        showToast('已复制到剪贴�?', 'success');
+        showToast('已复制到剪贴板', 'success');
     }).catch(() => {
         // Fallback
         const ta = document.createElement('textarea');
@@ -1657,7 +1657,7 @@ function copyResult() {
         ta.select();
         document.execCommand('copy');
         document.body.removeChild(ta);
-        showToast('已复制到剪贴�?', 'success');
+        showToast('已复制到剪贴板', 'success');
     });
 }
 
@@ -1670,7 +1670,7 @@ function exportResult() {
     a.download = `批改结果_${new Date().toISOString().slice(0,10)}.txt`;
     a.click();
     URL.revokeObjectURL(url);
-    showToast('已导出文�?', 'success');
+    showToast('已导出文件', 'success');
 }
 
 function printResult() {
@@ -1749,7 +1749,7 @@ function clearHistory() {
     state.history = [];
     localStorage.removeItem('grading_history');
     renderHistory();
-    showToast('已清空批改记�?', 'info');
+    showToast('已清空批改记录', 'info');
 }
 
 // ============================================================
@@ -1770,12 +1770,12 @@ function resetAll() {
         <div class="empty-state">
             <div class="icon">📋</div>
             <h3>等待批改</h3>
-            <p>输入作业内容并选择课程和模型后，点击「开始批改」即可获�? AI 批改结果</p>
+            <p>输入作业内容并选择课程和模型后，点击「开始批改」即可获得 AI 批改结果</p>
         </div>
     `;
     document.getElementById('resultActions').style.display = 'none';
 
-    showToast('已重置所有内�?', 'info');
+    showToast('已重置所有内容', 'info');
 }
 
 function showToast(message, type = 'info') {
@@ -1783,7 +1783,7 @@ function showToast(message, type = 'info') {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
 
-    const icons = { success: '�?', error: '�?', info: 'ℹ️' };
+    const icons = { success: '✅', error: '❌', info: 'ℹ️' };
     toast.innerHTML = `<span>${icons[type] || ''}</span><span>${message}</span>`;
 
     container.appendChild(toast);
