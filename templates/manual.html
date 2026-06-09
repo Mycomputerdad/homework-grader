@@ -38,134 +38,190 @@
 </head>
 <body>
 
-<h1>🎓 教师作业批改助手 — 产品说明书</h1>
-<p class="meta">版本: v1.1 · 更新日期: 2026年6月8日</p>
+<h1>教师作业批改助手 — 产品说明书与操作指南</h1>
+<p class="meta">创作人：马健驰 · 学号：20235963 · 版本: v1.1 · 更新日期: 2026年06月09日</p>
 
 <h2>一、产品概述</h2>
-<p>教师作业批改助手是一款基于大语言模型（LLM）的智能作业批改系统。教师输入学生作业内容、选择学科，AI 即可自动完成<strong>评分、逐题批改、优点分析、改进建议及教师寄语</strong>，大幅提升批改效率。</p>
+<p>教师作业批改助手是一款基于大语言模型（LLM）的智能作业批改系统。教师只需输入学生作业内容、选择学科，AI 即可自动完成<strong>评分、逐题批改、优点分析、改进建议及教师寄语</strong>，大幅提升批改效率。</p>
+<p>本产品支持 11 门学科、3 家 AI 服务商（DeepSeek、Kimi 月之暗面、SiliconFlow 硅基流动），可手动输入文字或上传文件（.txt / .docx / .pdf / .md），并提供严格、标准、宽松三种批改尺度。</p>
 
 <h2>二、公开访问链接</h2>
-<p>在浏览器中打开以下链接即可使用：</p>
-<div class="url-box">https://horses-ads-wildlife-log.trycloudflare.com</div>
-<p>备用链接：</p>
-<div class="url-box">https://6921434d82d658e3-210-30-194-141.serveousercontent.com</div>
+<p>以下链接可直接在浏览器中打开，无需安装任何软件：</p>
 
-<div class="tip">
-    ⚠️ 链接为动态隧道地址，服务端保持运行期间有效。如无法访问，请联系管理员重启服务。
-</div>
+<p><strong>[ AI 作业批改助手 - 主页面 ]</strong></p>
+<div class="url-box">https://web-production-d702c.up.railway.app</div>
+<p>功能：输入/上传作业 - 选择学科和模型 - AI 批改 - 查看/导出结果</p>
 
-<h2>三、功能操作详细说明</h2>
+<p><strong>[ 产品说明书 ]</strong></p>
+<div class="url-box">https://web-production-d702c.up.railway.app/manual</div>
+<p>功能：查看完整的产品说明和常见问题解答</p>
 
-<h3>步骤一：配置 API</h3>
+<h2>三、快速上手（5 步完成批改）</h2>
+
+<h3>步骤 1：获取 API Key</h3>
+<p>在使用批改功能前，需要先获取 AI 服务商的 API Key（三选一即可）：</p>
+<table>
+    <tr><th>服务商</th><th>获取地址</th><th>免费额度</th><th>推荐模型</th></tr>
+    <tr><td>DeepSeek 官方</td><td>platform.deepseek.com</td><td>新用户注册即送</td><td>DeepSeek-V3（综合最强）</td></tr>
+    <tr><td>Moonshot Kimi</td><td>platform.moonshot.cn</td><td>注册送 15 元体验金</td><td>Kimi K2.5（256K 上下文）</td></tr>
+    <tr><td>SiliconFlow 硅基流动</td><td>cloud.siliconflow.cn</td><td>免费模型可用</td><td>Qwen3-8B（免费）</td></tr>
+</table>
+
+<h3>步骤 2：打开公网链接</h3>
+<p>在浏览器中打开上方提供的公网链接，看到左侧配置面板 + 右侧作业输入区的界面。</p>
+
+<h3>步骤 3：配置 API</h3>
 <div class="step">
     <div class="step-num">1</div>
     <div class="step-content">
-        <p>在左侧边栏 <strong>「🤖 API 服务商」</strong> 中选择：</p>
-        <ul>
-            <li><strong>DeepSeek 官方</strong>：使用 DeepSeek 官方 API（推荐）</li>
-            <li><strong>SiliconFlow (硅基流动)</strong>：国内可用，免费模型</li>
-        </ul>
-        <p>在 <strong>「🔑 API Key」</strong> 中输入你的 API Key：</p>
-        <table>
-            <tr><th>服务商</th><th>获取地址</th></tr>
-            <tr><td>DeepSeek</td><td><a href="https://platform.deepseek.com" target="_blank">platform.deepseek.com</a>（注册送额度）</td></tr>
-            <tr><td>SiliconFlow</td><td><a href="https://cloud.siliconflow.cn" target="_blank">cloud.siliconflow.cn</a>（免费模型）</td></tr>
-        </table>
+        <p>在左侧"API 服务商"下拉框中选择你注册的服务商。注意：DeepSeek 的 Key 只能选"DeepSeek 官方"，不可与其他服务商混用。</p>
     </div>
 </div>
-
-<h3>步骤二：选择课程与模型</h3>
 <div class="step">
     <div class="step-num">2</div>
     <div class="step-content">
-        <p>在左侧选择 <strong>学科</strong>（10+ 学科可选），再选 <strong>模型</strong>：</p>
-        <ul>
-            <li><code>DeepSeek-V3</code>：综合能力最强（推荐）</li>
-            <li><code>DeepSeek-R1</code>：深度推理，适合数学</li>
-            <li><code>Qwen3-8B</code>：免费可用</li>
-        </ul>
+        <p>在"API Key"输入框中粘贴你的 Key。（直接登录的界面已经内置好本人的 API，可以直接使用）</p>
     </div>
 </div>
-
-<h3>步骤三：输入作业内容</h3>
 <div class="step">
     <div class="step-num">3</div>
     <div class="step-content">
-        <p>支持两种方式：</p>
-        <ul>
-            <li><strong>手动输入</strong>：在文本框粘贴作业内容</li>
-            <li><strong>上传文件</strong>：点击或拖拽上传（支持 .txt .docx .pdf .md）</li>
-        </ul>
+        <p>在"批改模型"中选择模型。</p>
     </div>
 </div>
 
-<h3>步骤四：选择批改标准并开始</h3>
+<h3>步骤 4：输入作业并开始批改</h3>
+<div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+        <p>在左侧"选择课程"中点击目标学科（如数学）。</p>
+    </div>
+</div>
+<div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+        <p>选择知识点/题型，以及批改标准（严格 / 标准 / 宽松）。</p>
+    </div>
+</div>
+<div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+        <p>在右侧输入框中粘贴作业内容，或切换到"上传文件"页签上传文档（文档上传后，其内容会自动解析显示在正下方）。</p>
+    </div>
+</div>
 <div class="step">
     <div class="step-num">4</div>
     <div class="step-content">
-        <p>选择批改标准（严格/标准/宽松），点击右上角 <strong>「✨ 开始批改」</strong>。</p>
-        <p>等待 10-30 秒，AI 返回结构化批改结果：评分、总体评价、逐题批改、优点、不足与建议、教师寄语。</p>
+        <p>点击右上角"开始批改"按钮。</p>
+    </div>
+</div>
+<div class="step">
+    <div class="step-num">5</div>
+    <div class="step-content">
+        <p>等待 10-30 秒，右侧将显示 AI 生成的结构化批改结果并将此次分析记录在左侧栏下方的"批改记录"中。</p>
     </div>
 </div>
 
-<h3>步骤五：导出结果</h3>
-<p>批改完成后可以：📋 复制结果 · 💾 下载 TXT · 🖨 打印</p>
+<h3>步骤 5：查看与导出结果</h3>
+<p>批改结果包含：评分 - 总体评价 - 详细批改 - 优点 - 不足与建议 - 教师寄语。</p>
+<p>结果区上方有"重置"按钮，会重置所有配置选项和上传的文本或文件；下方提供三个操作按钮：复制结果（一键复制到剪贴板）、导出文本（下载为 .txt 文件）、打印（直接打印或保存为 PDF），以及此次解答的基本信息（科目、使用的模型、时间、解析字数等）。</p>
 
 <h2>四、支持学科一览</h2>
 <table>
     <tr><th>学科</th><th>可选知识点</th></tr>
-    <tr><td>📝 语文</td><td>阅读理解、作文、古诗词鉴赏、文言文翻译</td></tr>
-    <tr><td>🔢 数学</td><td>代数、几何、概率统计、函数、方程与不等式</td></tr>
-    <tr><td>🔤 英语</td><td>阅读理解、写作、完形填空、语法填空、翻译</td></tr>
-    <tr><td>⚡ 物理</td><td>力学、电磁学、热学、光学、原子物理</td></tr>
-    <tr><td>🧪 化学</td><td>有机化学、无机化学、化学反应原理、实验题</td></tr>
-    <tr><td>🧬 生物</td><td>细胞生物学、遗传学、生态学、人体生理</td></tr>
-    <tr><td>📜 历史</td><td>中国古代史、中国近代史、世界史、材料分析</td></tr>
-    <tr><td>🌍 地理</td><td>自然地理、人文地理、区域地理、地图分析</td></tr>
-    <tr><td>⚖️ 政治</td><td>经济生活、政治生活、文化生活、哲学</td></tr>
-    <tr><td>💻 编程</td><td>Python、C/C++、算法、数据结构</td></tr>
-    <tr><td>📚 自定义</td><td>自由输入学科名称</td></tr>
+    <tr><td>语文</td><td>阅读理解、作文、古诗词鉴赏、文言文翻译、现代文阅读</td></tr>
+    <tr><td>数学</td><td>代数、几何、概率统计、函数、方程与不等式</td></tr>
+    <tr><td>英语</td><td>阅读理解、写作、完形填空、语法填空、翻译</td></tr>
+    <tr><td>物理</td><td>力学、电磁学、热学、光学、原子物理</td></tr>
+    <tr><td>化学</td><td>有机化学、无机化学、化学反应原理、实验题、化学方程式</td></tr>
+    <tr><td>生物</td><td>细胞生物学、遗传学、生态学、人体生理、进化论</td></tr>
+    <tr><td>历史</td><td>中国古代史、中国近代史、世界史、材料分析、论述题</td></tr>
+    <tr><td>地理</td><td>自然地理、人文地理、区域地理、地图分析、综合题</td></tr>
+    <tr><td>政治</td><td>经济生活、政治生活、文化生活、哲学、时政分析</td></tr>
+    <tr><td>编程/信息</td><td>Python、C/C++、算法、数据结构、程序填空</td></tr>
+    <tr><td>自定义课程</td><td>自由输入学科名称和知识点</td></tr>
 </table>
 
-<h2>五、常见问题</h2>
+<h2>五、批改标准说明</h2>
+<table>
+    <tr><th>标准</th><th>适用场景</th><th>特点</th></tr>
+    <tr><td>严格</td><td>考试评分</td><td>不放过任何错误，扣分明确，适合模拟考</td></tr>
+    <tr><td>标准（推荐）</td><td>日常作业批改</td><td>指出错误并给出改进建议，兼顾严谨与鼓励</td></tr>
+    <tr><td>宽松</td><td>鼓励性评价</td><td>以肯定为主，温和指出不足，适合低年级学生</td></tr>
+</table>
+
+<h2>六、常见问题 (FAQ)</h2>
 
 <p><strong>Q1: 提示"API 调用失败: Api key is invalid"？</strong></p>
-<p>A: 最常见的原因——服务商和 API Key 不匹配。DeepSeek 的 Key 只能选「DeepSeek 官方」，SiliconFlow 的 Key 只能选「SiliconFlow」。</p>
+<p>A: 最常见的原因：服务商和 API Key 不匹配。DeepSeek 的 Key 只能选"DeepSeek 官方"，SiliconFlow 的 Key 只能选"SiliconFlow"，Kimi 的 Key 只能选"Moonshot (Kimi 月之暗面)"。请检查左侧是否选对了服务商。</p>
 
-<p><strong>Q2: 提示"temperature: only 1 is allowed"？</strong></p>
-<p>A: 推理模型（DeepSeek-R1、Kimi K2.5）限制 temperature=1。切换到 DeepSeek-V3 或 Moonshot V1 等普通模型即可，系统已自动适配。</p>
+<p><strong>Q2: 提示"temperature: only 1 is allowed for this model"？</strong></p>
+<p>A: 某些推理模型（如 DeepSeek-R1、Kimi K2.5）只接受 temperature=1。切换到 DeepSeek-V3 或 Moonshot V1 等普通模型即可，系统已自动适配该参数。</p>
 
-<p><strong>Q3: 左侧按钮点不了、科目消失了？</strong></p>
-<p>A: 通常是页面 JS 加载异常。按 Ctrl+F5 强制刷新浏览器即可恢复。</p>
+<p><strong>Q3: 左侧课程按钮点不了、科目全部消失了？</strong></p>
+<p>A: 通常是页面 JavaScript 加载异常。按 Ctrl+F5 强制刷新浏览器即可恢复。</p>
 
-<p><strong>Q4: 结果中出现 $ \frac \Delta 等符号？</strong></p>
-<p>A: 系统已优化提示词要求 AI 用纯文本输出。如偶有出现，重新批改一次即可消除。</p>
+<p><strong>Q4: 批改结果中出现大量数学符号（如 $ \frac \Delta 等）？</strong></p>
+<p>A: AI 有时会使用 LaTeX 数学格式。系统已优化提示词要求纯文本输出。如偶有出现，重新批改一次即可消除。</p>
 
-<p><strong>Q5: 上传文件后在哪查看内容？</strong></p>
-<p>A: 输入框下方会自动出现「📄 文件内容预览」区域，完整展示解析文本，支持滚动查看。</p>
+<p><strong>Q5: 上传文件后在哪里查看文件内容？</strong></p>
+<p>A: 文件上传成功后，输入框下方会自动出现"文件内容预览"区域，展示解析出的完整文本，超出可滚动查看。</p>
 
 <p><strong>Q6: 支持什么文件格式？</strong></p>
-<p>A: .txt / .docx / .pdf / .md，推荐 .txt 和 .docx 效果最佳。</p>
+<p>A: 支持 .txt、.docx、.pdf、.md 四种格式，推荐 .txt 和 .docx 效果最佳。</p>
 
 <p><strong>Q7: API Key 安全吗？</strong></p>
-<p>A: 安全。Key 仅存浏览器本地（localStorage），直连 AI 服务商，不经过服务器。</p>
+<p>A: 安全。Key 仅存浏览器本地（localStorage），直连 AI 服务商，不经过服务器记录或转发。</p>
 
 <p><strong>Q8: 可以免费使用吗？</strong></p>
-<p>A: 三家均可免费上手：DeepSeek 新用户送额度、Kimi 注册送 15 元、SiliconFlow 有免费模型。</p>
+<p>A: 可以。DeepSeek 新用户送额度、Kimi 注册送 15 元、SiliconFlow 有免费模型。</p>
 
-<p><strong>Q9: 公网链接打不开？</strong></p>
-<p>A: 链接基于 Cloudflare Tunnel，如服务端重启会导致地址变更。请联系管理员获取最新链接，推荐 Chrome/Edge 浏览器。</p>
+<p><strong>Q9: 公网链接打不开怎么办？</strong></p>
+<p>A: 链接部署在 Railway 云服务器，永久有效，无需梯子。如无法访问请检查网络或联系管理员，推荐 Chrome / Edge 浏览器。</p>
 
-<p><strong>Q10: Kimi 模型太慢？</strong></p>
-<p>A: 单题批改选 DeepSeek-V3 或 Moonshot V1-8K 更快；长篇作业再用 Kimi K2.5 发挥其 256K 长上下文优势。</p>
+<p><strong>Q10: Kimi 模型批改太慢？</strong></p>
+<p>A: 建议单题用 DeepSeek-V3 或 Moonshot V1-8K（更快），长篇作业再用 Kimi K2.5（256K 上下文优势）。系统已将输出限制为 2048 tokens。</p>
 
-<h2>六、技术架构</h2>
-<p>前端：HTML + CSS + JavaScript（原生） · 后端：Python Flask · AI 引擎：兼容 OpenAI 接口的大语言模型</p>
+<p><strong>Q11: 批改结果准确吗？</strong></p>
+<p>A: AI 批改仅供参考，最终评分请以教师判断为准。建议 AI 初筛后，教师重点复核 AI 标记的错误项和改进项。</p>
+
+<h2>七、技术架构</h2>
+<table>
+    <tr><th>层级</th><th>技术选型</th><th>说明</th></tr>
+    <tr><td>前端</td><td>HTML + CSS + JavaScript（原生）</td><td>无框架依赖，响应式设计</td></tr>
+    <tr><td>后端</td><td>Python Flask</td><td>请求转发、提示词工程、文件解析</td></tr>
+    <tr><td>AI 引擎</td><td>OpenAI 兼容接口</td><td>支持 DeepSeek / Kimi / SiliconFlow</td></tr>
+    <tr><td>文件解析</td><td>python-docx + PyPDF2</td><td>Word 和 PDF 文本提取</td></tr>
+    <tr><td>部署方式</td><td>Railway 云服务器</td><td>公网访问，永久链接</td></tr>
+</table>
+
+<h2>八、测试样例</h2>
+
+<h3>样例 1：数学 - 代数（含错误）</h3>
+<p><strong>[题目]</strong> 解方程 2x² - 5x - 3 = 0</p>
+<p><strong>[学生解答]</strong> 使用求根公式，a=2, b=-5, c=-3，判别式 = 25+24 = 49，x1 = 3，x2 = 0.5</p>
+<p>提示：x2 应为 -0.5（符号错误），可测试 AI 能否发现。</p>
+
+<h3>样例 2：地理 - 自然地理（含错误，三种评判标准下有不同评分）</h3>
+<p><strong>[题目]</strong> 分析我国南方地区和北方地区的自然地理环境差异。</p>
+<p><strong>[学生解答]</strong></p>
+<p>南方和北方以秦岭-淮河为界，差异挺大的。</p>
+<p>气候：南方热，北方冷。南方下雨多，北方下雨少。</p>
+<p>地形：南方多山，北方多平原。</p>
+<p>农业：南方种水稻，北方种小麦。</p>
+<p>河流：南方河流多，北方河流少。</p>
+<p>总的来说，造成这些差异的原因是纬度不同。</p>
+<p>提示：内容不完整、表达口语化、遗漏重要维度，分别用严格/标准/宽松批改可看到明显差异。</p>
+
+<h3>样例 3：语文 - 作文片段</h3>
+<p><strong>[题目]</strong> 以"我的老师"为题写一段话。</p>
+<p><strong>[学生习作]</strong> 我的老师十分和蔼，她有一头乌黑的头发，脸上总挂着微笑。上课时她认真讲解每一个知识，下课后她耐心解答我们的问题。</p>
+<p>提示：可测试 AI 对写作的点评能力。</p>
 
 <hr style="margin:40px 0;border:none;border-top:1px solid var(--border);">
 <p style="text-align:center;color:var(--text-light);font-size:14px;">
-    📌 核心交付物：AI Agent 公网链接 + 本文档（产品说明书）<br>
-    🎓 教师作业批改助手 v1.1 · Powered by DeepSeek / SiliconFlow
+    创作人：马健驰 · 学号：20235963<br>
+    教师作业批改助手 v1.1 · Powered by DeepSeek / Kimi / SiliconFlow
 </p>
 
 </body>
