@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教师作业批改助手 - AI Homework Grader</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <style>
+        /* ============================================================
+           CSS Variables & Reset
+           ============================================================ */
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #818cf8;
+            --primary-dark: #3730a3;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --bg: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-sidebar: #1e1b4b;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --text-muted: #94a3b8;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --transition: all 0.2s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ============================================================
+           Layout
+           ============================================================ */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 320px;
+            background: linear-gradient(180deg, var(--bg-sidebar) 0%, #312e81 100%);
+            color: white;
+            padding: 0;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+            position: relative;
+            z-index: 10;
+        }
+
+        .sidebar-header {
+            padding: 28px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-header h1 .icon {
+            font-size: 28px;
+        }
+
+        .sidebar-header p {
+            font-size: 13px;
+            opacity: 0.7;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 24px;
+        }
+
+        .sidebar-content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .sidebar-content::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 2px;
+        }
+
+        .config-section {
+            margin-bottom: 24px;
+        }
+
+        .config-section label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.8;
+            margin-bottom: 8px;
+        }
+
+        .config-section select,
+        .config-section input[type="text"],
+        .config-section input[type="password"] {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: var(--radius-sm);
+            background: rgba(255,255,255,0.08);
+            color: white;
+            font-size: 14px;
+            transition: var(--transition);
+            outline: none;
+        }
+
+        .config-section select:focus,
+        .config-section input:focus {
+            border-color: var(--primary-light);
+            background: rgba(255,255,255,0.12);
+            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
+        }
+
+        .config-section select option {
+            background: var(--bg-sidebar);
+            color: white;
+        }
+
+        .config-section input::placeholder {
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* Course grid */
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .course-btn {
+            padding: 10px 8px;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: var(--radius-sm);
+            background: rgba(255,255,255,0.05);
+            color: white;
+            font-size: 13px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .course-btn:hover {
+            background: rgba(255,255,255,0.12);
+            border-color: rgba(255,255,255,0.25);
+            transform: translateY(-1px);
+        }
+
+        .course-btn.active {
+            background: var(--primary);
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.3);
+        }
+
+        .course-btn .emoji {
+            font-size: 20px;
+        }
+
+        .course-btn .name {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Grading criteria */
+        .criteria-group {
+            display: flex;
+            gap: 6px;
+        }
+
+        .criteria-btn {
+            flex: 1;
+            padding: 8px 4px;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: var(--radius-sm);
+            background: rgba(255,255,255,0.05);
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .criteria-btn:hover {
+            background: rgba(255,255,255,0.12);
+        }
+
+        .criteria-btn.active {
+            background: var(--primary);
+            border-color: var(--primary-light);
+        }
+
+        /* Sidebar footer */
+        .sidebar-footer {
+            padding: 16px 24px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 11px;
+            opacity: 0.5;
+            text-align: center;
+        }
+
+        /* ============================================================
+           Main Content
+           ============================================================ */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        /* Top bar */
+        .top-bar {
+            padding: 20px 32px;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .top-bar h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .top-bar-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Content area */
+        .content-area {
+            flex: 1;
+            display: flex;
+            gap: 0;
+            padding: 24px 32px;
+            overflow: hidden;
+        }
+
+        /* Input panel */
+        .input-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .panel-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .char-count {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .homework-input {
+            flex: 1;
+            width: 100%;
+            padding: 16px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 15px;
+            line-height: 1.8;
+            resize: none;
+            outline: none;
+            transition: var(--transition);
+            font-family: inherit;
+            background: var(--bg-card);
+            min-height: 300px;
+        }
+
+        .homework-input:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.08);
+        }
+
+        .homework-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .input-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .btn-icon {
+            padding: 10px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-light);
+            border: 1px solid var(--border);
+        }
+
+        .btn-ghost:hover {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        /* File upload */
+        .file-upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--bg-card);
+            margin-bottom: 16px;
+        }
+
+        .file-upload-zone:hover {
+            border-color: var(--primary-light);
+            background: rgba(79, 70, 229, 0.02);
+        }
+
+        .file-upload-zone.dragover {
+            border-color: var(--primary);
+            background: rgba(79, 70, 229, 0.05);
+            transform: scale(1.01);
+        }
+
+        .file-upload-zone .upload-icon {
+            font-size: 36px;
+            margin-bottom: 8px;
+        }
+
+        .file-upload-zone p {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        .file-upload-zone .hint {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .file-info {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: var(--radius-sm);
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: var(--success);
+        }
+
+        .file-info.show {
+            display: flex;
+        }
+
+        .file-info .remove-file {
+            margin-left: auto;
+            cursor: pointer;
+            opacity: 0.6;
+            font-size: 18px;
+        }
+
+        .file-info .remove-file:hover {
+            opacity: 1;
+        }
+
+        /* ============================================================
+           Result Panel
+           ============================================================ */
+        .result-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            margin-left: 24px;
+        }
+
+        .result-content {
+            flex: 1;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            overflow-y: auto;
+            line-height: 1.8;
+        }
+
+        .result-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .result-content::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        /* Empty state */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-muted);
+            text-align: center;
+            padding: 40px;
+        }
+
+        .empty-state .icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            max-width: 300px;
+            line-height: 1.6;
+        }
+
+        /* Loading */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
+        .loading-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 40px 50px;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-card h3 {
+            font-size: 18px;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .loading-card p {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        /* Result markdown styling */
+        .result-content h3 {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin: 24px 0 12px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .result-content h3:first-child {
+            margin-top: 0;
+        }
+
+        .result-content p {
+            margin-bottom: 10px;
+        }
+
+        .result-content ul, .result-content ol {
+            margin: 8px 0 16px 20px;
+        }
+
+        .result-content li {
+            margin-bottom: 6px;
+        }
+
+        .result-content strong {
+            color: var(--text);
+        }
+
+        .result-content em {
+            color: var(--text-light);
+        }
+
+        .result-content code {
+            background: var(--bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: var(--danger);
+        }
+
+        .result-content blockquote {
+            border-left: 4px solid var(--primary-light);
+            padding: 12px 16px;
+            margin: 12px 0;
+            background: rgba(79, 70, 229, 0.04);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+        }
+
+        /* Score badge */
+        .score-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border-radius: 30px;
+            font-size: 20px;
+            font-weight: 700;
+            margin: 12px 0;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        /* Result metadata */
+        .result-meta {
+            display: flex;
+            gap: 16px;
+            padding: 12px 0;
+            border-top: 1px solid var(--border);
+            margin-top: 20px;
+            font-size: 12px;
+            color: var(--text-muted);
+            flex-wrap: wrap;
+        }
+
+        .result-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Action bar for result */
+        .result-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        /* History */
+        .history-section {
+            margin-top: 20px;
+        }
+
+        .history-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .history-header h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.85);
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .history-item {
+            padding: 10px 14px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .history-item:hover {
+            border-color: var(--primary-light);
+            box-shadow: var(--shadow);
+        }
+
+        .history-item .title {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-item .meta {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Toast notification */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            padding: 14px 20px;
+            border-radius: var(--radius-sm);
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: var(--shadow-lg);
+            animation: slideIn 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 300px;
+        }
+
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        .toast.info { background: var(--info); }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Extra instructions */
+        .extra-instructions {
+            margin-top: 12px;
+        }
+
+        .extra-instructions summary {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.8;
+            cursor: pointer;
+            padding: 4px 0;
+        }
+
+        .extra-instructions textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: var(--radius-sm);
+            background: rgba(255,255,255,0.08);
+            color: white;
+            font-size: 13px;
+            resize: vertical;
+            min-height: 60px;
+            margin-top: 8px;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .extra-instructions textarea:focus {
+            border-color: var(--primary-light);
+        }
+
+        .extra-instructions textarea::placeholder {
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* Toggle switch for file upload */
+        .input-mode-toggle {
+            display: flex;
+            background: var(--bg);
+            border-radius: var(--radius-sm);
+            padding: 3px;
+            margin-bottom: 16px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            background: transparent;
+            color: var(--text-light);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+
+        .mode-btn.active {
+            background: var(--bg-card);
+            color: var(--text);
+            box-shadow: var(--shadow);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .app-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                max-height: none;
+            }
+
+            .sidebar-content {
+                max-height: 300px;
+            }
+
+            .content-area {
+                flex-direction: column;
+                padding: 16px;
+            }
+
+            .result-panel {
+                margin-left: 0;
+                margin-top: 20px;
+            }
+
+            .course-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .top-bar {
+                padding: 16px;
+            }
+
+            .content-area {
+                padding: 12px;
+            }
+
+            .course-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Separator */
+        .separator {
+            height: 1px;
+            background: rgba(255,255,255,0.1);
+            margin: 4px 0;
+        }
+
+        /* Custom model input */
+        .custom-model-group {
+            display: none;
+            margin-top: 8px;
+        }
+
+        .custom-model-group.show {
+            display: block;
+        }
+
+        /* API key toggle */
+        .api-key-wrapper {
+            position: relative;
+        }
+
+        .api-key-wrapper .toggle-visibility {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.5);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+        }
+
+        .api-key-wrapper .toggle-visibility:hover {
+            color: rgba(255,255,255,0.8);
+        }
+
+        /* Divider in result */
+        .result-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 20px 0;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .result-divider::before,
+        .result-divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- ============================================================
+         Sidebar - Configuration
+         ============================================================ -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h1><span class="icon">🎓</span> 作业批改助手</h1>
+            <p>AI 驱动的智能作业批改系统 · 支持10+学科</p>
+            <p style="font-size:11px;margin-top:4px;opacity:0.5;">v1.1 · 公网版</p>
+        </div>
+
+        <div class="sidebar-content">
+            <!-- API Provider -->
+            <div class="config-section">
+                <label>🤖 API 服务商</label>
+                <select id="apiProvider">
+                    <!-- Populated by JS -->
+                </select>
+            </div>
+
+            <!-- API Key -->
+            <div class="config-section">
+                <label>🔑 API Key</label>
+                <div class="api-key-wrapper">
+                    <input type="password" id="apiKey" placeholder="输入你的 API Key" autocomplete="off">
+                    <button class="toggle-visibility" onclick="toggleApiKeyVisibility()" title="显示/隐藏">👁</button>
+                </div>
+            </div>
+
+            <!-- Model -->
+            <div class="config-section">
+                <label>🧠 批改模型</label>
+                <select id="modelSelect">
+                    <!-- Populated by JS -->
+                </select>
+                <div class="custom-model-group" id="customModelGroup">
+                    <input type="text" id="customModel" placeholder="输入模型 ID，如 gpt-4o">
+                </div>
+            </div>
+
+            <!-- Custom URL (for openai_compatible) -->
+            <div class="config-section" id="customUrlSection" style="display:none;">
+                <label>🌐 API 基础 URL</label>
+                <input type="text" id="customUrl" placeholder="https://api.example.com/v1">
+            </div>
+
+            <div class="separator"></div>
+
+            <!-- Course -->
+            <div class="config-section">
+                <label>📖 选择课程</label>
+                <div class="course-grid" id="courseGrid">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Subject -->
+            <div class="config-section" id="subjectSection" style="display:none;">
+                <label>📌 知识点 / 题型</label>
+                <select id="subjectSelect">
+                    <!-- Populated by JS -->
+                </select>
+            </div>
+
+            <div class="separator"></div>
+
+            <!-- Grading Criteria -->
+            <div class="config-section">
+                <label>📏 批改标准</label>
+                <div class="criteria-group">
+                    <button class="criteria-btn" data-criteria="strict" onclick="selectCriteria('strict')">严格</button>
+                    <button class="criteria-btn active" data-criteria="standard" onclick="selectCriteria('standard')">标准</button>
+                    <button class="criteria-btn" data-criteria="lenient" onclick="selectCriteria('lenient')">宽松</button>
+                </div>
+            </div>
+
+            <!-- Extra Instructions -->
+            <details class="extra-instructions">
+                <summary>💡 额外批改要求（可选）</summary>
+                <textarea id="extraInstructions" placeholder="例如：重点检查语法错误、关注解题步骤是否完整..."></textarea>
+            </details>
+
+            <!-- History -->
+            <div class="history-section" id="historySection" style="display:none;">
+                <div class="history-header">
+                    <h3>📋 批改记录</h3>
+                    <button class="btn btn-ghost" style="padding:4px 8px;font-size:11px;" onclick="clearHistory()">清空</button>
+                </div>
+                <div class="history-list" id="historyList">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-footer">
+            <a href="/manual" target="_blank" style="color:rgba(255,255,255,0.6);text-decoration:none;font-size:11px;">📖 产品说明书</a><br>
+            <span style="font-size:10px;">Powered by DeepSeek / SiliconFlow</span>
+        </div>
+    </aside>
+
+    <!-- ============================================================
+         Main Content
+         ============================================================ -->
+    <main class="main-content">
+        <div class="top-bar">
+            <h2>📝 作业批改</h2>
+            <div class="top-bar-actions">
+                <button class="btn btn-ghost" onclick="resetAll()">🔄 重置</button>
+                <button class="btn btn-primary" id="gradeBtn" onclick="startGrading()">
+                    <span>✨ 开始批改</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <!-- Input Panel -->
+            <div class="input-panel">
+                <!-- Input Mode Toggle -->
+                <div class="input-mode-toggle">
+                    <button class="mode-btn active" data-mode="text" onclick="switchInputMode('text')">✍️ 手动输入</button>
+                    <button class="mode-btn" data-mode="file" onclick="switchInputMode('file')">📁 上传文件</button>
+                </div>
+
+                <!-- File Upload Zone -->
+                <div id="fileUploadZone" class="file-upload-zone" style="display:none;" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">📤</div>
+                    <p>点击或拖拽文件到此处上传</p>
+                    <div class="hint">支持 .txt, .docx, .pdf, .md 格式</div>
+                </div>
+                <input type="file" id="fileInput" accept=".txt,.docx,.pdf,.md">
+
+                <div class="file-info" id="fileInfo">
+                    <span>📄</span>
+                    <span id="fileName"></span>
+                    <span class="remove-file" onclick="removeFile()">✕</span>
+                </div>
+
+                <!-- Text Input -->
+                <div class="panel-header">
+                    <h3>
+                        📝 作业内容
+                        <span class="char-count" id="charCount">0 字</span>
+                    </h3>
+                </div>
+
+                <textarea class="homework-input" id="homeworkText"
+                    placeholder="在此粘贴或输入学生的作业内容...&#10;&#10;例如：&#10;题目：请解释光合作用的过程。&#10;学生答案：光合作用是植物利用阳光将二氧化碳和水转化为有机物的过程...&#10;&#10;或者直接粘贴整篇作文、数学解题过程等。"
+                    oninput="updateCharCount()"></textarea>
+
+                <div class="input-actions">
+                    <span style="font-size:12px;color:var(--text-muted);">
+                        💡 提示：选择左侧课程和模型后，点击右上角「开始批改」
+                    </span>
+                </div>
+
+                <!-- File Content Preview -->
+                <div id="filePreview" style="display:none;margin-top:16px;">
+                    <div class="panel-header">
+                        <h3>📄 文件内容预览</h3>
+                        <span style="font-size:12px;color:var(--text-muted);" id="filePreviewInfo"></span>
+                    </div>
+                    <div id="filePreviewContent" style="
+                        background:var(--bg);
+                        border:1px solid var(--border);
+                        border-radius:var(--radius-sm);
+                        padding:16px;
+                        max-height:300px;
+                        overflow-y:auto;
+                        font-size:14px;
+                        line-height:1.8;
+                        white-space:pre-wrap;
+                        word-break:break-word;
+                        color:var(--text);
+                    "></div>
+                </div>
+            </div>
+
+            <!-- Result Panel -->
+            <div class="result-panel">
+                <div class="panel-header">
+                    <h3>📊 批改结果</h3>
+                </div>
+
+                <div class="result-content" id="resultContent">
+                    <div class="empty-state">
+                        <div class="icon">📋</div>
+                        <h3>等待批改</h3>
+                        <p>输入作业内容并选择课程和模型后，点击「开始批改」即可获得 AI 批改结果</p>
+                    </div>
+                </div>
+
+                <div class="result-actions" id="resultActions" style="display:none;">
+                    <button class="btn btn-secondary" onclick="copyResult()">📋 复制结果</button>
+                    <button class="btn btn-secondary" onclick="exportResult()">💾 导出文本</button>
+                    <button class="btn btn-secondary" onclick="printResult()">🖨 打印</button>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-card">
+        <div class="loading-spinner"></div>
+        <h3>🤖 AI 正在批改中...</h3>
+        <p id="loadingText">正在分析作业内容，请稍候</p>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ============================================================
+     JavaScript
+     ============================================================ -->
+<script>
+// ============================================================
+// State
+// ============================================================
+const state = {
+    config: null,
+    selectedCourse: null,
+    selectedSubject: null,
+    selectedCriteria: 'standard',
+    currentMode: 'text',
+    uploadedFile: null,
+    history: JSON.parse(localStorage.getItem('grading_history') || '[]'),
+};
+
+// ============================================================
+// Initialization
+// ============================================================
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const res = await fetch('/api/config');
+        state.config = await res.json();
+        initUI();
+    } catch (e) {
+        // Fallback config if server not running
+        state.config = getFallbackConfig();
+        initUI();
+        showToast('未连接到后端服务，部分功能可能不可用', 'info');
+    }
+
+    // Restore saved API key
+    const savedKey = localStorage.getItem('api_key');
+    if (savedKey) document.getElementById('apiKey').value = savedKey;
+
+    // Init drag & drop
+    initDragDrop();
+
+    // Render history
+    renderHistory();
+});
+
+function getFallbackConfig() {
+    return {
+        api_providers: [
+            {
+                id: "siliconflow",
+                name: "SiliconFlow (硅基流动)",
+                base_url: "https://api.siliconflow.cn/v1",
+                models: [
+                    {id: "Qwen/Qwen2.5-7B-Instruct", name: "Qwen2.5-7B (免费)", free: true},
+                    {id: "Qwen/Qwen3-8B", name: "Qwen3-8B (免费)", free: true},
+                ]
+            },
+            {
+                id: "deepseek",
+                name: "DeepSeek 官方",
+                base_url: "https://api.deepseek.com",
+                models: [
+                    {id: "deepseek-chat", name: "DeepSeek-V3", free: false},
+                ]
+            },
+            {
+                id: "openai_compatible",
+                name: "自定义 OpenAI 兼容 API",
+                base_url: "",
+                models: []
+            }
+        ],
+        courses: [
+            {id: "chinese", name: "语文", icon: "📝", subjects: ["阅读理解", "作文", "古诗词鉴赏"]},
+            {id: "math", name: "数学", icon: "🔢", subjects: ["代数", "几何", "概率统计"]},
+            {id: "english", name: "英语", icon: "🔤", subjects: ["阅读理解", "写作", "完形填空"]},
+            {id: "physics", name: "物理", icon: "⚡", subjects: ["力学", "电磁学"]},
+            {id: "chemistry", name: "化学", icon: "🧪", subjects: ["有机化学", "无机化学"]},
+            {id: "biology", name: "生物", icon: "🧬", subjects: ["细胞生物学", "遗传学"]},
+            {id: "custom", name: "自定义课程", icon: "📚", subjects: []},
+        ]
+    };
+}
+
+function initUI() {
+    // Populate API providers
+    const providerSelect = document.getElementById('apiProvider');
+    state.config.api_providers.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.name;
+        providerSelect.appendChild(opt);
+    });
+    providerSelect.addEventListener('change', onProviderChange);
+    onProviderChange();
+
+    // Populate courses
+    const courseGrid = document.getElementById('courseGrid');
+    state.config.courses.forEach(c => {
+        const btn = document.createElement('button');
+        btn.className = 'course-btn';
+        btn.dataset.id = c.id;
+        btn.innerHTML = `<span class="emoji">${c.icon}</span><span class="name">${c.name}</span>`;
+        btn.onclick = () => selectCourse(c.id);
+        courseGrid.appendChild(btn);
+    });
+}
+
+// ============================================================
+// Provider / Model
+// ============================================================
+function onProviderChange() {
+    const providerId = document.getElementById('apiProvider').value;
+    const provider = state.config.api_providers.find(p => p.id === providerId);
+    const modelSelect = document.getElementById('modelSelect');
+    const customUrlSection = document.getElementById('customUrlSection');
+    const customModelGroup = document.getElementById('customModelGroup');
+
+    modelSelect.innerHTML = '';
+
+    if (providerId === 'openai_compatible') {
+        customUrlSection.style.display = 'block';
+        customModelGroup.classList.add('show');
+        const opt = document.createElement('option');
+        opt.value = '_custom';
+        opt.textContent = '自定义模型';
+        modelSelect.appendChild(opt);
+    } else {
+        customUrlSection.style.display = 'none';
+        customModelGroup.classList.remove('show');
+
+        if (provider && provider.models) {
+            provider.models.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m.id;
+                opt.textContent = m.name + (m.free ? ' 🆓' : '');
+                modelSelect.appendChild(opt);
+            });
+        }
+    }
+
+    // Restore saved model
+    const savedModel = localStorage.getItem('selected_model');
+    if (savedModel && modelSelect.querySelector(`option[value="${savedModel}"]`)) {
+        modelSelect.value = savedModel;
+    }
+
+    modelSelect.addEventListener('change', () => {
+        localStorage.setItem('selected_model', modelSelect.value);
+    });
+}
+
+// ============================================================
+// Course / Subject
+// ============================================================
+function selectCourse(courseId) {
+    state.selectedCourse = courseId;
+
+    // Update UI
+    document.querySelectorAll('.course-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.id === courseId);
+    });
+
+    const course = state.config.courses.find(c => c.id === courseId);
+    const subjectSection = document.getElementById('subjectSection');
+    const subjectSelect = document.getElementById('subjectSelect');
+
+    if (course && course.subjects && course.subjects.length > 0) {
+        subjectSection.style.display = 'block';
+        subjectSelect.innerHTML = '';
+        course.subjects.forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s;
+            opt.textContent = s;
+            subjectSelect.appendChild(opt);
+        });
+        state.selectedSubject = course.subjects[0];
+        subjectSelect.onchange = () => { state.selectedSubject = subjectSelect.value; };
+    } else if (courseId === 'custom') {
+        subjectSection.style.display = 'block';
+        subjectSelect.innerHTML = '<option value="自定义">自定义知识点</option>';
+        // Allow user to type custom subject
+        subjectSelect.insertAdjacentHTML('afterend', '<input type="text" id="customSubject" placeholder="输入自定义课程名称" style="width:100%;padding:10px 14px;border:1px solid rgba(255,255,255,0.15);border-radius:8px;background:rgba(255,255,255,0.08);color:white;font-size:14px;margin-top:8px;outline:none;">');
+        state.selectedSubject = '自定义';
+    } else {
+        subjectSection.style.display = 'none';
+        state.selectedSubject = '';
+    }
+}
+
+// ============================================================
+// Criteria
+// ============================================================
+function selectCriteria(criteria) {
+    state.selectedCriteria = criteria;
+    document.querySelectorAll('.criteria-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.criteria === criteria);
+    });
+}
+
+// ============================================================
+// Input Mode
+// ============================================================
+function switchInputMode(mode) {
+    state.currentMode = mode;
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+    });
+
+    const fileZone = document.getElementById('fileUploadZone');
+    const textInput = document.querySelector('.homework-input');
+    const fileInfo = document.getElementById('fileInfo');
+
+    if (mode === 'file') {
+        fileZone.style.display = 'block';
+        textInput.style.display = 'none';
+    } else {
+        fileZone.style.display = 'none';
+        textInput.style.display = 'block';
+    }
+}
+
+// ============================================================
+// File Upload
+// ============================================================
+function initDragDrop() {
+    const zone = document.getElementById('fileUploadZone');
+    if (!zone) return;
+
+    zone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        zone.classList.add('dragover');
+    });
+
+    zone.addEventListener('dragleave', () => {
+        zone.classList.remove('dragover');
+    });
+
+    zone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        zone.classList.remove('dragover');
+        if (e.dataTransfer.files.length > 0) {
+            handleFile(e.dataTransfer.files[0]);
+        }
+    });
+
+    document.getElementById('fileInput').addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            handleFile(e.target.files[0]);
+        }
+    });
+}
+
+async function handleFile(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    showToast('正在解析文件...', 'info');
+
+    try {
+        const res = await fetch('/api/upload', { method: 'POST', body: formData });
+        const data = await res.json();
+
+        if (data.success) {
+            document.getElementById('homeworkText').value = data.text;
+            document.getElementById('fileInfo').classList.add('show');
+            document.getElementById('fileName').textContent = `${data.filename} (${data.char_count} 字)`;
+            state.uploadedFile = data.filename;
+            updateCharCount();
+
+            // 显示文件内容预览
+            const preview = document.getElementById('filePreview');
+            const previewContent = document.getElementById('filePreviewContent');
+            const previewInfo = document.getElementById('filePreviewInfo');
+            preview.style.display = 'block';
+            previewContent.textContent = data.text;
+            previewInfo.textContent = `${data.filename} · ${data.char_count} 字`;
+            previewContent.scrollTop = 0;
+
+            showToast(`文件解析成功: ${data.filename}`, 'success');
+        } else {
+            showToast(data.error || '文件解析失败', 'error');
+        }
+    } catch (e) {
+        showToast('文件上传失败，请确保后端服务正在运行', 'error');
+    }
+}
+
+function removeFile() {
+    document.getElementById('fileInfo').classList.remove('show');
+    document.getElementById('homeworkText').value = '';
+    document.getElementById('fileInput').value = '';
+    state.uploadedFile = null;
+    updateCharCount();
+
+    // 隐藏文件预览
+    document.getElementById('filePreview').style.display = 'none';
+    document.getElementById('filePreviewContent').textContent = '';
+}
+
+// ============================================================
+// Char Count
+// ============================================================
+function updateCharCount() {
+    const text = document.getElementById('homeworkText').value;
+    document.getElementById('charCount').textContent = `${text.length} 字`;
+}
+
+// ============================================================
+// API Key Toggle
+// ============================================================
+function toggleApiKeyVisibility() {
+    const input = document.getElementById('apiKey');
+    input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+// ============================================================
+// Grading
+// ============================================================
+async function startGrading() {
+    const homeworkText = document.getElementById('homeworkText').value.trim();
+    const apiKey = document.getElementById('apiKey').value.trim();
+    const providerId = document.getElementById('apiProvider').value;
+    const modelSelect = document.getElementById('modelSelect');
+    const extraInstructions = document.getElementById('extraInstructions').value.trim();
+
+    // Validation
+    if (!homeworkText) {
+        showToast('请输入或上传作业内容', 'error');
+        return;
+    }
+    if (!apiKey) {
+        showToast('请输入 API Key', 'error');
+        return;
+    }
+    if (!state.selectedCourse) {
+        showToast('请选择课程', 'error');
+        return;
+    }
+
+    // Save API key
+    localStorage.setItem('api_key', apiKey);
+
+    // Get model
+    let model = modelSelect.value;
+    if (model === '_custom') {
+        model = document.getElementById('customModel').value.trim();
+        if (!model) {
+            showToast('请输入自定义模型 ID', 'error');
+            return;
+        }
+    }
+
+    // Get subject
+    let subject = state.selectedSubject || '';
+    if (state.selectedCourse === 'custom') {
+        const customSubject = document.getElementById('customSubject');
+        if (customSubject) subject = customSubject.value.trim() || '自定义';
+    }
+
+    // Get custom URL
+    const customUrl = document.getElementById('customUrl').value.trim();
+
+    // Show loading
+    document.getElementById('loadingOverlay').classList.add('show');
+    document.getElementById('gradeBtn').disabled = true;
+    document.getElementById('loadingText').textContent = 'AI 正在批改中，请稍候...';
+
+    try {
+        const res = await fetch('/api/grade', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                homework_text: homeworkText,
+                course: state.config.courses.find(c => c.id === state.selectedCourse)?.name || state.selectedCourse,
+                subject: subject,
+                api_provider: providerId,
+                api_key: apiKey,
+                model: model,
+                custom_url: customUrl,
+                extra_instructions: extraInstructions,
+                grading_criteria: state.selectedCriteria,
+            })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            renderResult(data.result, data.metadata);
+            addToHistory(data.metadata, homeworkText.substring(0, 50));
+            showToast('批改完成！', 'success');
+        } else {
+            showToast(data.error || '批改失败', 'error');
+        }
+    } catch (e) {
+        showToast('请求失败: ' + e.message, 'error');
+    } finally {
+        document.getElementById('loadingOverlay').classList.remove('show');
+        document.getElementById('gradeBtn').disabled = false;
+    }
+}
+
+// ============================================================
+// Result Rendering
+// ============================================================
+function renderResult(text, metadata) {
+    const container = document.getElementById('resultContent');
+
+    // Simple markdown to HTML
+    let html = markdownToHtml(text);
+
+    // Add metadata (only if we have it - skip during streaming)
+    if (metadata && metadata.course) {
+        html += `
+            <div class="result-meta">
+                <span>📖 ${metadata.course} · ${metadata.subject || ''}</span>
+                <span>🧠 ${metadata.model || ''}</span>
+                <span>🕐 ${metadata.timestamp || ''}</span>
+                <span>📝 ${metadata.word_count || 0} 字</span>
+            </div>
+        `;
+    }
+
+    container.innerHTML = html;
+    document.getElementById('resultActions').style.display = 'flex';
+
+    // Scroll to top
+    container.scrollTop = 0;
+}
+
+function markdownToHtml(md) {
+    if (!md) return '';
+
+    let html = md
+        // Headers
+        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+        .replace(/^## (.*$)/gim, '<h3>$1</h3>')
+        // Bold
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        // Italic
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        // Code blocks
+        .replace(/```[\s\S]*?```/g, (match) => {
+            const code = match.replace(/```\w*\n?/g, '').replace(/```$/g, '');
+            return `<pre style="background:var(--bg);padding:12px;border-radius:8px;overflow-x:auto;font-size:13px;line-height:1.5;"><code>${code}</code></pre>`;
+        })
+        // Inline code
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        // Blockquote
+        .replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>')
+        // Horizontal rule
+        .replace(/^---$/gim, '<hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">')
+        // Unordered list
+        .replace(/^\- (.*$)/gim, '<li>$1</li>')
+        .replace(/^\* (.*$)/gim, '<li>$1</li>')
+        // Ordered list
+        .replace(/^\d+\. (.*$)/gim, '<li>$1</li>')
+        // Line breaks
+        .replace(/\n\n/g, '</p><p>')
+        .replace(/\n/g, '<br>');
+
+    // Wrap list items
+    html = html.replace(/(<li>.*?<\/li>)/gs, (match) => {
+        if (!match.startsWith('<ul>') && !match.startsWith('<ol>')) {
+            return '<ul>' + match + '</ul>';
+        }
+        return match;
+    });
+
+    // Clean up
+    html = '<p>' + html + '</p>';
+    html = html.replace(/<p><\/p>/g, '');
+    html = html.replace(/<p><h3>/g, '<h3>');
+    html = html.replace(/<\/h3><\/p>/g, '</h3>');
+    html = html.replace(/<p><ul>/g, '<ul>');
+    html = html.replace(/<\/ul><\/p>/g, '</ul>');
+    html = html.replace(/<p><pre/g, '<pre');
+    html = html.replace(/<\/pre><\/p>/g, '</pre>');
+    html = html.replace(/<p><hr/g, '<hr');
+    html = html.replace(/<hr\/><\/p>/g, '<hr/>');
+    html = html.replace(/<p><blockquote>/g, '<blockquote>');
+    html = html.replace(/<\/blockquote><\/p>/g, '</blockquote>');
+
+    return html;
+}
+
+// ============================================================
+// Result Actions
+// ============================================================
+function copyResult() {
+    const text = document.getElementById('resultContent').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        showToast('已复制到剪贴板', 'success');
+    }).catch(() => {
+        // Fallback
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast('已复制到剪贴板', 'success');
+    });
+}
+
+function exportResult() {
+    const text = document.getElementById('resultContent').innerText;
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `批改结果_${new Date().toISOString().slice(0,10)}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('已导出文件', 'success');
+}
+
+function printResult() {
+    const content = document.getElementById('resultContent').innerHTML;
+    const win = window.open('', '_blank');
+    win.document.write(`
+        <html>
+        <head>
+            <title>作业批改结果</title>
+            <style>
+                body { font-family: "PingFang SC", "Microsoft YaHei", sans-serif; padding: 40px; line-height: 1.8; color: #333; }
+                h3 { color: #4f46e5; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin: 24px 0 12px; }
+                ul { margin-left: 20px; }
+                li { margin-bottom: 6px; }
+                strong { color: #1e293b; }
+                blockquote { border-left: 4px solid #818cf8; padding: 12px 16px; margin: 12px 0; background: #f8fafc; }
+                .result-meta { font-size: 12px; color: #94a3b8; margin-top: 20px; padding-top: 12px; border-top: 1px solid #e2e8f0; }
+            </style>
+        </head>
+        <body>${content}</body>
+        </html>
+    `);
+    win.document.close();
+    win.print();
+}
+
+// ============================================================
+// History
+// ============================================================
+function addToHistory(metadata, preview) {
+    const item = {
+        id: Date.now(),
+        preview: preview,
+        course: metadata.course,
+        subject: metadata.subject,
+        model: metadata.model,
+        timestamp: metadata.timestamp,
+        result: document.getElementById('resultContent').innerHTML,
+    };
+
+    state.history.unshift(item);
+    if (state.history.length > 20) state.history.pop();
+
+    localStorage.setItem('grading_history', JSON.stringify(state.history));
+    renderHistory();
+}
+
+function renderHistory() {
+    const section = document.getElementById('historySection');
+    const list = document.getElementById('historyList');
+
+    if (state.history.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    section.style.display = 'block';
+    list.innerHTML = '';
+
+    state.history.slice(0, 10).forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        div.innerHTML = `
+            <div class="title">${item.course} · ${item.subject || ''} - ${item.preview}...</div>
+            <div class="meta">${item.timestamp} · ${item.model}</div>
+        `;
+        div.onclick = () => {
+            document.getElementById('resultContent').innerHTML = item.result;
+            document.getElementById('resultActions').style.display = 'flex';
+        };
+        list.appendChild(div);
+    });
+}
+
+function clearHistory() {
+    state.history = [];
+    localStorage.removeItem('grading_history');
+    renderHistory();
+    showToast('已清空批改记录', 'info');
+}
+
+// ============================================================
+// Utilities
+// ============================================================
+function resetAll() {
+    document.getElementById('homeworkText').value = '';
+    document.getElementById('extraInstructions').value = '';
+    updateCharCount();
+    removeFile();
+
+    document.querySelectorAll('.course-btn').forEach(btn => btn.classList.remove('active'));
+    state.selectedCourse = null;
+    state.selectedSubject = null;
+    document.getElementById('subjectSection').style.display = 'none';
+
+    document.getElementById('resultContent').innerHTML = `
+        <div class="empty-state">
+            <div class="icon">📋</div>
+            <h3>等待批改</h3>
+            <p>输入作业内容并选择课程和模型后，点击「开始批改」即可获得 AI 批改结果</p>
+        </div>
+    `;
+    document.getElementById('resultActions').style.display = 'none';
+
+    showToast('已重置所有内容', 'info');
+}
+
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+
+    const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+    toast.innerHTML = `<span>${icons[type] || ''}</span><span>${message}</span>`;
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+</script>
+
+</body>
+</html>
