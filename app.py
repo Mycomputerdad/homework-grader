@@ -15,7 +15,10 @@ import PyPDF2
 import io
 
 app = Flask(__name__)
-app.json.ensure_ascii = True  # 强制 JSON 转义非 ASCII 字符，避免 latin-1 编码问题
+try:
+    app.json.ensure_ascii = True  # Flask 3.x
+except AttributeError:
+    pass  # Flask 2.x 不支持，忽略
 CORS(app)
 
 
