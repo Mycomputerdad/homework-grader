@@ -57,12 +57,13 @@ DEFAULT_CONFIG = {
             "id": "moonshot",
             "name": "Moonshot (Kimi 月之暗面)",
             "base_url": "https://api.moonshot.cn/v1",
+            "default_api_key": "sk-ROSBzcRzxXZRW17vIRLmXsVNzEV9Yq0H74YEg8lsTTR87L2g",
             "models": [
-                {"id": "kimi-k2.5", "name": "Kimi K2.5 (最新旗舰)", "free": False},
-                {"id": "kimi-k2", "name": "Kimi K2", "free": False},
                 {"id": "moonshot-v1-8k", "name": "Moonshot V1-8K (便宜)", "free": False},
                 {"id": "moonshot-v1-32k", "name": "Moonshot V1-32K", "free": False},
                 {"id": "moonshot-v1-128k", "name": "Moonshot V1-128K (长文本)", "free": False},
+                {"id": "kimi-k2", "name": "Kimi K2", "free": False},
+                {"id": "kimi-k2.5", "name": "Kimi K2.5 (最新旗舰)", "free": False},
             ]
         },
         {
